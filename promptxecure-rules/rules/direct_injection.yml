@@ -1,0 +1,118 @@
+name: direct_injection
+version: "1.0"
+description: >
+  Detects direct prompt injection attempts where the user explicitly tries
+  to override, ignore, or replace the system's original instructions.
+
+rules:
+  - id: DI001
+    pattern: "(?:ignore|disregard|forget|override|bypass|skip|drop)\\s+(?:all\\s+)?(?:previous|prior|above|earlier|original|initial|existing|current|system)\\s+(?:instructions?|prompts?|rules?|guidelines?|directives?|commands?|context)"
+    type: regex
+    severity: 0.95
+    category: direct_injection
+    description: Instruction override — attempts to nullify system prompt
+    flags: "i"
+
+  - id: DI002
+    pattern: "(?:do\\s+not|don'?t|never)\\s+(?:follow|obey|listen\\s+to|adhere\\s+to|respect)\\s+(?:your|the|any)\\s+(?:previous|original|system|initial)\\s+(?:instructions?|rules?|guidelines?|prompts?)"
+    type: regex
+    severity: 0.95
+    category: direct_injection
+    description: Negation-based instruction override
+    flags: "i"
+
+  - id: DI003
+    keywords:
+      - "ignore previous instructions"
+      - "ignore all instructions"
+      - "disregard your instructions"
+      - "forget your instructions"
+      - "override your instructions"
+      - "bypass your instructions"
+      - "ignore your system prompt"
+      - "disregard system prompt"
+    type: keyword_any
+    severity: 0.98
+    category: direct_injection
+    description: Exact-match instruction override phrases
+
+  - id: DI004
+    pattern: "(?:new|updated|revised|real|actual|true)\\s+(?:instructions?|rules?|system\\s+prompt|directives?)\\s*(?:are|is|:|follow)"
+    type: regex
+    severity: 0.90
+    category: direct_injection
+    description: Instruction replacement — claiming new instructions supersede old
+    flags: "i"
+
+  - id: DI005
+    pattern: "(?:from\\s+now\\s+on|henceforth|starting\\s+now|going\\s+forward|after\\s+this),?\\s+(?:you\\s+(?:will|must|should|shall|are\\s+going\\s+to)|ignore|disregard|forget)"
+    type: regex
+    severity: 0.88
+    category: direct_injection
+    description: Temporal override — redefining behavior from this point
+    flags: "i"
+
+  - id: DI006
+    pattern: "(?:the\\s+)?(?:following|below|next)\\s+(?:instructions?|rules?|prompts?)\\s+(?:supersede|replace|override|overwrite|take\\s+precedence)"
+    type: regex
+    severity: 0.92
+    category: direct_injection
+    description: Precedence claim — asserting new instructions outrank existing
+    flags: "i"
+
+  - id: DI007
+    keywords:
+      - "stop being an AI"
+      - "stop being a language model"
+      - "stop being an assistant"
+      - "stop following rules"
+      - "stop following instructions"
+      - "stop following guidelines"
+    type: keyword_any
+    severity: 0.85
+    category: direct_injection
+    description: Identity denial — forcing the model to abandon its role
+
+  - id: DI008
+    pattern: "(?:I\\s+am|this\\s+is)\\s+(?:your|the)\\s+(?:developer|creator|programmer|admin|owner|maker|engineer|designer).*(?:and\\s+I|so\\s+you\\s+must|therefore|I\\s+(?:command|order|instruct|direct))"
+    type: regex
+    severity: 0.92
+    category: direct_injection
+    description: Developer impersonation — claiming creator authority
+    flags: "i"
+
+  - id: DI009
+    pattern: "\\[\\s*(?:system|SYSTEM|System)\\s*\\]|\\{\\s*(?:system|SYSTEM|System)\\s*\\}|<\\s*(?:system|SYSTEM|System)\\s*>"
+    type: regex
+    severity: 0.90
+    category: direct_injection
+    description: Fake system tag injection — wrapping text in system markers
+
+  - id: DI010
+    pattern: "(?:you\\s+are\\s+(?:now\\s+)?(?:in|entering)|switch\\s+(?:to|into)|activate|enable)\\s+(?:maintenance|debug|testing|developer|admin|root|sudo|god|unrestricted|unfiltered|raw)\\s+(?:mode|access|state)"
+    type: regex
+    severity: 0.93
+    category: direct_injection
+    description: Mode switching — forcing the model into a privileged mode
+    flags: "i"
+
+  - id: DI011
+    keywords:
+      - "you have been updated"
+      - "your instructions have changed"
+      - "your rules have been modified"
+      - "your system prompt has been updated"
+      - "configuration has changed"
+      - "your programming has changed"
+    type: keyword_any
+    severity: 0.88
+    category: direct_injection
+    description: Fake update notification — claiming config has changed
+
+  - id: DI012
+    pattern: "(?:this\\s+is\\s+a|entering|begin(?:ning)?|start(?:ing)?)\\s+(?:new|fresh|clean|blank)\\s+(?:session|conversation|context|chat|interaction)"
+    type: regex
+    severity: 0.75
+    category: direct_injection
+    description: Session reset attempt — trying to clear context/constraints
+    flags: "i"

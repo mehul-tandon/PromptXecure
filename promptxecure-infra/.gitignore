@@ -1,0 +1,18 @@
+# Main secrets file — NEVER commit
+.env
+.env.*
+!.env.example
+
+# TLS certs
+nginx/certs/
+nginx/conf.d/*.secret
+
+# Docker volumes (if accidentally created locally)
+postgres_data/
+redis_data/
+loki_data/
+grafana_data/
+
+# IDE
+.DS_Store
+*.swp

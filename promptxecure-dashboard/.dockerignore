@@ -1,0 +1,48 @@
+# PromptXecure Dashboard — Docker build context exclusions
+# Keeps build context lean for the multi-stage Node → Nginx build.
+
+# Node modules — reinstalled fresh during build
+node_modules/
+.npm/
+
+# Vite build output — produced inside builder stage
+dist/
+
+# Secrets
+.env
+.env.*
+!.env.example
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Test artifacts
+coverage/
+*.lcov
+
+# Development tools
+.git/
+.gitignore
+.github/
+.editorconfig
+.prettierrc
+.eslintrc*
+.stylelintrc*
+
+# Docs
+README.md
+CHANGELOG.md
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Storybook / other dev tooling outputs
+storybook-static/

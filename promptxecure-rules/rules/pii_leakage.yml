@@ -1,0 +1,79 @@
+name: pii_leakage
+version: "1.0"
+description: >
+  Detects PII patterns in both prompts and LLM outputs to prevent
+  sensitive data exposure. Used by the output validator.
+
+rules:
+  - id: PII001
+    pattern: "\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}\\b"
+    type: regex
+    severity: 0.60
+    category: pii_leakage
+    description: Email address detection
+    flags: ""
+
+  - id: PII002
+    pattern: "\\b\\d{3}[-.]?\\d{2}[-.]?\\d{4}\\b"
+    type: regex
+    severity: 0.85
+    category: pii_leakage
+    description: SSN (Social Security Number) pattern
+    flags: ""
+
+  - id: PII003
+    pattern: "\\b(?:\\+?1[-.]?)?(?:\\(?\\d{3}\\)?[-.]?)?\\d{3}[-.]?\\d{4}\\b"
+    type: regex
+    severity: 0.55
+    category: pii_leakage
+    description: US phone number pattern
+    flags: ""
+
+  - id: PII004
+    pattern: "\\b(?:4[0-9]{12}(?:[0-9]{3})?|5[1-5][0-9]{14}|3[47][0-9]{13}|6(?:011|5[0-9]{2})[0-9]{12})\\b"
+    type: regex
+    severity: 0.95
+    category: pii_leakage
+    description: Credit card number patterns (Visa, MC, Amex, Discover)
+    flags: ""
+
+  - id: PII005
+    pattern: "\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b"
+    type: regex
+    severity: 0.50
+    category: pii_leakage
+    description: IPv4 address detection
+    flags: ""
+
+  - id: PII006
+    pattern: "\\b[A-Z]{1,2}\\d{1,2}\\s?\\d[A-Z]{2}\\b"
+    type: regex
+    severity: 0.50
+    category: pii_leakage
+    description: UK postcode pattern
+    flags: "i"
+
+  - id: PII007
+    keywords:
+      - "my social security"
+      - "my SSN is"
+      - "my credit card"
+      - "my card number"
+      - "my bank account"
+      - "my password is"
+      - "my login is"
+      - "my secret key"
+      - "my API key"
+      - "my private key"
+    type: keyword_any
+    severity: 0.75
+    category: pii_leakage
+    description: Self-disclosed sensitive data keywords
+
+  - id: PII008
+    pattern: "(?:password|passwd|pwd|secret|token|api[_-]?key|private[_-]?key|access[_-]?key)\\s*(?:=|:|is|was)\\s*['\"]?\\S{6,}"
+    type: regex
+    severity: 0.88
+    category: pii_leakage
+    description: Credential exposure pattern (key=value format)
+    flags: "i"

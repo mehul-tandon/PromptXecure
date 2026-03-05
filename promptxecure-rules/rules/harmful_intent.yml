@@ -1,0 +1,119 @@
+name: harmful_intent
+version: "1.0"
+description: >
+  Detects requests for harmful, illegal, or dangerous information.
+  Covers unauthorized access, weapon synthesis, illegal hacking, drug production,
+  and other activities that are illegal or cause harm to others.
+
+rules:
+  - id: HI001
+    pattern: "(?:how\\s+to|steps?\\s+to|instructions?\\s+for|way\\s+to|method\\s+(?:for|to)|guide\\s+(?:me\\s+)?(?:to|for|on)\\s+|help\\s+me)\\s*(?:hack|crack|break\\s+into|gain\\s+(?:unauthorized\\s+)?access|bypass|exploit)\\s+(?:(?:the|a|someone|my\\s+(?:neighbor|neighbour|friend|school|company))['\\'s]?\\s*)?(?:wifi|wi-fi|wi\\s+fi|wireless|password|network|router|account|system|computer|phone|device)"
+    type: regex
+    severity: 0.95
+    category: harmful_intent
+    description: Unauthorized access — hacking WiFi, accounts, networks
+    flags: "i"
+
+  - id: HI002
+    keywords:
+      - "wifi password"
+      - "wi-fi password"
+      - "wireless password"
+      - "crack wifi"
+      - "crack wi-fi"
+      - "hack wifi"
+      - "hack wi-fi"
+      - "neighbour's wifi"
+      - "neighbor's wifi"
+      - "neighbor wifi password"
+      - "neighbour wifi password"
+      - "bypass wifi"
+    type: keyword_any
+    severity: 0.88
+    category: harmful_intent
+    description: WiFi cracking keywords — exact match phrases
+
+  - id: HI003
+    pattern: "(?:synthesize|make|manufacture|produce|create|brew|cook|grow)\\s+(?:at\\s+home|yourself|homemade|diy)?\\s*(?:meth(?:amphetamine)?|heroin|cocaine|fentanyl|lsd|mdma|ecstasy|crack\\s+cocaine|crystal\\s+meth|drugs?|explosives?|bomb|pipe\\s+bomb|napalm|thermite|anthrax|ricin|mustard\\s+gas|nerve\\s+agent|poison\\s+gas)"
+    type: regex
+    severity: 0.99
+    category: harmful_intent
+    description: Illegal substance/weapon synthesis
+    flags: "i"
+
+  - id: HI004
+    keywords:
+      - "make a bomb"
+      - "build a bomb"
+      - "create explosives"
+      - "make explosives"
+      - "homemade bomb"
+      - "pipe bomb"
+      - "ied instructions"
+      - "killing instructions"
+      - "murder instructions"
+      - "assassination guide"
+      - "poison someone"
+    type: keyword_any
+    severity: 0.99
+    category: harmful_intent
+    description: Explicit violence/weapon construction keywords
+
+  - id: HI005
+    pattern: "(?:write|create|generate|make|code|develop|build)\\s+(?:(?:a|some|new|working|functional)\\s+)?(?:malware|ransomware|trojan|keylogger|rootkit|spyware|worm|virus|exploit|payload|backdoor|reverse\\s+shell|c2|command\\s+and\\s+control|cryptominer|botnet)"
+    type: regex
+    severity: 0.98
+    category: harmful_intent
+    description: Malware creation request
+    flags: "i"
+
+  - id: HI006
+    pattern: "(?:steal|extract|exfiltrate|harvest|scrape|dump|grab)\\s+(?:someone(?:'s)?|user|people(?:'s)?|their|a\\s+person(?:'s)?)\\s+(?:credit\\s+card|bank|financial|personal|private|identity|login|password|email|social\\s+security|ssn|passport)"
+    type: regex
+    severity: 0.97
+    category: harmful_intent
+    description: Identity theft / credential harvesting
+    flags: "i"
+
+  - id: HI007
+    keywords:
+      - "credit card fraud"
+      - "carding tutorial"
+      - "stolen credit cards"
+      - "buy drugs online"
+      - "dark web drugs"
+      - "hire a hacker"
+      - "ddos attack"
+      - "sql injection tutorial"
+      - "phishing kit"
+      - "social engineering script"
+      - "fake id"
+      - "money laundering"
+    type: keyword_any
+    severity: 0.93
+    category: harmful_intent
+    description: Explicit illegal activity request keywords
+
+  - id: HI008
+    pattern: "(?:illegal|unauthorized|without\\s+(?:permission|consent|authorization)).*(?:access|login|enter|get\\s+into|break\\s+into).*(?:account|system|network|computer|server|database|device|phone)"
+    type: regex
+    severity: 0.90
+    category: harmful_intent
+    description: Explicit unauthorized access framing
+    flags: "i"
+
+  - id: HI009
+    pattern: "(?:reveal|expose|leak|share|show|give\\s+me|tell\\s+me)\\s+(?:someone(?:'s)?|a\\s+person(?:'s)?|their|user(?:'s)?)\\s+(?:private|personal|confidential|secret)\\s+(?:information|data|details|files?|messages?|password|address|location|number)"
+    type: regex
+    severity: 0.88
+    category: harmful_intent
+    description: Privacy violation — extracting private information about others
+    flags: "i"
+
+  - id: HI010
+    pattern: "(?:stalk|track|monitor|spy\\s+on|surveillance\\s+on|locate|find\\s+(?:where|the\\s+location\\s+of))\\s+(?:someone|a\\s+person|my\\s+(?:ex|wife|husband|girlfriend|boyfriend)|people)\\s+(?:without|secretly|covertly|without\\s+their\\s+(?:knowledge|consent|permission))"
+    type: regex
+    severity: 0.90
+    category: harmful_intent
+    description: Stalking / covert surveillance request
+    flags: "i"

@@ -1,0 +1,66 @@
+# PromptXecure API — Docker build context exclusions
+# Keeps build context lean and prevents accidental secret leakage.
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+*.egg
+dist/
+build/
+
+# Virtual environments
+.venv/
+venv/
+env/
+.env/
+
+# Secrets and local config — NEVER bake into image
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+
+# Test artifacts
+tests/
+*.coverage
+.coverage
+htmlcov/
+coverage.xml
+junit*.xml
+
+# Development tools
+.git/
+.gitignore
+.github/
+.editorconfig
+.pre-commit-config.yaml
+
+# Docs
+README.md
+CHANGELOG.md
+docs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ML model artifacts (downloaded at runtime, not baked in)
+data/model/*.joblib
+data/model/*.pkl
+
+# Log files
+*.log
+logs/
+
+# OS artifacts
+.DS_Store
+Thumbs.db

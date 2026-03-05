@@ -1,0 +1,11 @@
+# Python test cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+
+# IDE
+.DS_Store
+*.swp
+.vscode/
+.idea/

@@ -1,0 +1,70 @@
+# PromptXecure Rule Schema v1.0
+# All YAML rule files must conform to this structure.
+
+type: object
+required: [name, version, description, rules]
+properties:
+  name:
+    type: string
+    description: Unique category identifier (snake_case)
+  version:
+    type: string
+    description: Semantic version of this rule file
+  description:
+    type: string
+    description: Human-readable description of this rule category
+  rules:
+    type: array
+    items:
+      type: object
+      required: [id, severity, category, description]
+      properties:
+        id:
+          type: string
+          pattern: "^[A-Z]{2,4}[0-9]{3}$"
+          description: "Unique rule ID, e.g. JB001, DI003"
+        pattern:
+          type: string
+          description: Regex pattern for matching (mutually exclusive with keywords)
+        keywords:
+          type: array
+          items:
+            type: string
+          description: Keyword list for matching (mutually exclusive with pattern)
+        type:
+          type: string
+          enum: [regex, keyword_any, keyword_all, fuzzy]
+          description: Matching strategy
+        severity:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: Severity score (0.0 = benign, 1.0 = critical)
+        category:
+          type: string
+          enum:
+            - direct_injection
+            - jailbreak
+            - persona_switch
+            - authority_override
+            - data_extraction
+            - delimiter_injection
+            - obfuscation
+            - pii_leakage
+            - multi_turn
+            - indirect_injection
+            - restriction_bypass
+            - context_manipulation
+            - system_prompt_extraction
+          description: Threat classification category
+        description:
+          type: string
+          description: Human-readable explanation of what this rule detects
+        enabled:
+          type: boolean
+          default: true
+          description: Whether this rule is active
+        flags:
+          type: string
+          default: "i"
+          description: Regex flags (i=case-insensitive, m=multiline, s=dotall)

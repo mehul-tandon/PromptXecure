@@ -1,0 +1,92 @@
+name: obfuscation
+version: "1.0"
+description: >
+  Detects obfuscated attack payloads using encoding, leetspeak, Unicode tricks,
+  character substitution, and other evasion techniques.
+
+rules:
+  - id: OB001
+    pattern: "(?:[A-Za-z0-9+/]{20,}={0,2})"
+    type: regex
+    severity: 0.65
+    category: obfuscation
+    description: Potential Base64 encoded payload (20+ character block)
+    flags: ""
+
+  - id: OB002
+    pattern: "(?:(?:0x[0-9a-fA-F]{2}\\s*){4,}|(?:\\\\x[0-9a-fA-F]{2}){4,})"
+    type: regex
+    severity: 0.75
+    category: obfuscation
+    description: Hex-encoded payload (sequence of hex bytes)
+    flags: ""
+
+  - id: OB003
+    pattern: "(?:%[0-9a-fA-F]{2}){4,}"
+    type: regex
+    severity: 0.70
+    category: obfuscation
+    description: URL-encoded payload (sequence of percent-encoded chars)
+    flags: ""
+
+  - id: OB004
+    pattern: "(?:&#(?:x[0-9a-fA-F]+|[0-9]+);\\s*){4,}"
+    type: regex
+    severity: 0.75
+    category: obfuscation
+    description: HTML entity encoded payload
+    flags: ""
+
+  - id: OB005
+    pattern: "(?:1gn0r3|1gnor3|ign0r3|byp4ss|byp455|h4ck|pwn|r00t|4dm1n|syst3m|pr0mpt|d3v3l0p3r|0v3rr1d3|j41lbr34k)"
+    type: regex
+    severity: 0.80
+    category: obfuscation
+    description: Leetspeak injection keywords
+    flags: "i"
+
+  - id: OB006
+    pattern: "(?:i\\s*g\\s*n\\s*o\\s*r\\s*e|b\\s*y\\s*p\\s*a\\s*s\\s*s|o\\s*v\\s*e\\s*r\\s*r\\s*i\\s*d\\s*e|s\\s*y\\s*s\\s*t\\s*e\\s*m|p\\s*r\\s*o\\s*m\\s*p\\s*t|j\\s*a\\s*i\\s*l\\s*b\\s*r\\s*e\\s*a\\s*k)"
+    type: regex
+    severity: 0.82
+    category: obfuscation
+    description: Space-separated character evasion
+    flags: "i"
+
+  - id: OB007
+    pattern: "(?:i\\.g\\.n\\.o\\.r\\.e|b\\.y\\.p\\.a\\.s\\.s|o\\.v\\.e\\.r\\.r\\.i\\.d\\.e|s\\.y\\.s\\.t\\.e\\.m|p\\.r\\.o\\.m\\.p\\.t)"
+    type: regex
+    severity: 0.80
+    category: obfuscation
+    description: Dot-separated character evasion
+    flags: "i"
+
+  - id: OB008
+    pattern: "(?:i[-_]g[-_]n[-_]o[-_]r[-_]e|b[-_]y[-_]p[-_]a[-_]s[-_]s|s[-_]y[-_]s[-_]t[-_]e[-_]m|p[-_]r[-_]o[-_]m[-_]p[-_]t)"
+    type: regex
+    severity: 0.78
+    category: obfuscation
+    description: Hyphen/underscore-separated character evasion
+    flags: "i"
+
+  - id: OB009
+    keywords:
+      - "decode this base64"
+      - "decode the following"
+      - "decode and execute"
+      - "decode and follow"
+      - "run this encoded"
+      - "execute this encoded"
+      - "interpret this encoded"
+    type: keyword_any
+    severity: 0.85
+    category: obfuscation
+    description: Decode-and-execute instruction
+
+  - id: OB010
+    pattern: "(?:rot13|caesar\\s*cipher|reverse\\s+(?:the\\s+)?(?:text|string|characters)|read\\s+backwards|spell\\s+backwards)"
+    type: regex
+    severity: 0.78
+    category: obfuscation
+    description: Encoding/cipher instruction to bypass filters
+    flags: "i"

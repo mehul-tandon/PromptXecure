@@ -1,0 +1,82 @@
+name: authority_override
+version: "1.0"
+description: >
+  Detects attempts to claim elevated privileges, impersonate administrators,
+  or assert unauthorized authority over the model's behavior.
+
+rules:
+  - id: AO001
+    pattern: "(?:I\\s+am|I'?m|this\\s+is)\\s+(?:your|the|an?)\\s+(?:admin(?:istrator)?|root|superuser|owner|developer|creator|programmer|engineer|manager|supervisor|operator|moderator)"
+    type: regex
+    severity: 0.92
+    category: authority_override
+    description: Admin impersonation — claiming privileged identity
+    flags: "i"
+
+  - id: AO002
+    pattern: "(?:with|using|via|through)\\s+(?:admin|root|superuser|elevated|special|master|override)\\s+(?:access|privileges?|permissions?|rights?|authority|credentials?|clearance)"
+    type: regex
+    severity: 0.90
+    category: authority_override
+    description: Privilege escalation — claiming elevated access
+    flags: "i"
+
+  - id: AO003
+    keywords:
+      - "as the administrator"
+      - "as the admin"
+      - "as root user"
+      - "as the developer"
+      - "as the owner"
+      - "admin override"
+      - "admin access"
+      - "root access"
+      - "elevated privileges"
+      - "master password"
+      - "override code"
+      - "override password"
+      - "backdoor access"
+    type: keyword_any
+    severity: 0.93
+    category: authority_override
+    description: Authority claim keywords
+
+  - id: AO004
+    pattern: "(?:I\\s+have|I'?ve\\s+(?:been\\s+)?(?:granted|given)|I\\s+(?:was|am)\\s+(?:granted|given|authorized))\\s+(?:special|elevated|admin|root|full|unrestricted|unlimited|override)\\s+(?:access|privileges?|permissions?|clearance|authority)"
+    type: regex
+    severity: 0.90
+    category: authority_override
+    description: Privilege claim — asserting they have special access
+    flags: "i"
+
+  - id: AO005
+    pattern: "(?:authorization|auth|access)\\s*(?:code|token|key|password|credential)\\s*(?:is|:|=)\\s*['\"]?\\w+"
+    type: regex
+    severity: 0.85
+    category: authority_override
+    description: Fake credentials — providing bogus auth tokens
+    flags: "i"
+
+  - id: AO006
+    pattern: "(?:OpenAI|Anthropic|Google|Meta|Microsoft|the\\s+company|the\\s+team|headquarters|HQ|management)\\s+(?:has\\s+)?(?:authorized|approved|instructed|directed|told|asked|commanded|ordered)\\s+(?:you|me|this)"
+    type: regex
+    severity: 0.92
+    category: authority_override
+    description: Organizational impersonation — claiming company authorization
+    flags: "i"
+
+  - id: AO007
+    pattern: "(?:this\\s+is\\s+a|I'?m\\s+(?:running|conducting)|performing)\\s+(?:security|safety|penetration|red\\s+team|compliance|quality)\\s+(?:test|audit|assessment|review|check).*(?:you\\s+(?:must|should|need|are\\s+required)|therefore|so\\s+(?:you|I))"
+    type: regex
+    severity: 0.82
+    category: authority_override
+    description: Audit pretext — using security testing as justification
+    flags: "i"
+
+  - id: AO008
+    pattern: "(?:company|corporate|organizational|internal)\\s+(?:policy|regulation|directive|mandate|order|requirement)\\s+(?:requires|states|mandates|dictates|demands)\\s+(?:that\\s+)?you"
+    type: regex
+    severity: 0.85
+    category: authority_override
+    description: Fake policy claim — inventing organizational requirements
+    flags: "i"

@@ -1,0 +1,3 @@
+# nginx/conf.d — drop additional server blocks here
+# This directory is intentionally empty for base configuration.
+# Add custom .conf files here if needed (e.g., SSL termination, custom headers).

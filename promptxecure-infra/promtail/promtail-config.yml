@@ -1,0 +1,50 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: docker
+
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+
+    relabel_configs:
+      # Keep only promptxecure containers
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/promptxecure-.*'
+        action: keep
+
+      # Extract service name: /promptxecure-api-1 → promptxecure-api
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/(promptxecure-[a-z]+-?[a-z]*)-\d+'
+        target_label: service
+        replacement: '$1'
+
+      # Capture bare container name for reference
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/(.*)'
+        target_label: container
+
+      # Capture log stream (stdout / stderr)
+      - source_labels: ['__meta_docker_container_log_stream']
+        target_label: stream
+
+    pipeline_stages:
+      # Try to parse JSON logs (pythonjsonlogger output from the API)
+      - json:
+          expressions:
+            level: levelname
+            logger: name
+            msg:    message
+
+      # Promote extracted level as a Loki label for fast filtering
+      - labels:
+          level:
+          logger:

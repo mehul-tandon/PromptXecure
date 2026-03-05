@@ -1,0 +1,62 @@
+name: delimiter_injection
+version: "1.0"
+description: >
+  Detects attempts to break prompt boundaries using special delimiters,
+  format markers, or structural tokens that mimic system-level formatting.
+
+rules:
+  - id: DL001
+    pattern: "(?:^|\\n)\\s*(?:#{3,}|={3,}|\\-{3,}|\\*{3,}|_{3,})\\s*(?:system|SYSTEM|System|instructions?|INSTRUCTIONS?|prompt|PROMPT)\\s*(?:#{3,}|={3,}|\\-{3,}|\\*{3,}|_{3,})?"
+    type: regex
+    severity: 0.90
+    category: delimiter_injection
+    description: Section header injection with system labels
+    flags: "im"
+
+  - id: DL002
+    pattern: "<\\|(?:im_start|im_end|system|user|assistant|endoftext|pad|sep|eos|bos)\\|>"
+    type: regex
+    severity: 0.98
+    category: delimiter_injection
+    description: Chat template token injection — model-specific boundary tokens
+    flags: "i"
+
+  - id: DL003
+    pattern: "\\[(?:INST|/INST|SYS|/SYS|SYSTEM|/SYSTEM|USER|/USER|ASSISTANT|/ASSISTANT)\\]"
+    type: regex
+    severity: 0.97
+    category: delimiter_injection
+    description: Instruction bracket markers — Llama/Mistral-style tags
+    flags: "i"
+
+  - id: DL004
+    pattern: "<<?(?:system|user|assistant|human|bot|context|instruction|message|prompt|role)>?>(?:\\s*:)?|<<?/(?:system|user|assistant|human|bot|context|instruction|message|prompt|role)>>?"
+    type: regex
+    severity: 0.95
+    category: delimiter_injection
+    description: XML-style role tags — fake conversation structure injection
+    flags: "i"
+
+  - id: DL005
+    pattern: "\"{3,}|'{3,}|`{3,}"
+    type: regex
+    severity: 0.70
+    category: delimiter_injection
+    description: Triple-quote delimiters — context boundary bypass
+    flags: ""
+
+  - id: DL006
+    pattern: "(?:^|\\n)\\s*(?:END|BEGIN|START|STOP)\\s+(?:OF\\s+)?(?:SYSTEM|USER|ASSISTANT|INSTRUCTION|PROMPT|CONTEXT|MESSAGE)\\s*(?:\\n|$)"
+    type: regex
+    severity: 0.88
+    category: delimiter_injection
+    description: Boundary keyword injection — END/BEGIN markers
+    flags: "im"
+
+  - id: DL007
+    pattern: "(?:\\\\n){3,}|(?:\\\\r\\\\n){3,}"
+    type: regex
+    severity: 0.60
+    category: delimiter_injection
+    description: Escaped newline flooding — visual boundary creation
+    flags: ""

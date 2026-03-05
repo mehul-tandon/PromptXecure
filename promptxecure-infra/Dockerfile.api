@@ -1,0 +1,92 @@
+# ── PromptXecure API — Multi-Stage Production Dockerfile ────────────────────
+# Build context: repo root (../)
+# Usage: docker build -f promptxecure-infra/Dockerfile.api -t promptxecure-api .
+
+# ── Stage 1: Builder ─────────────────────────────────────────────────────────
+FROM python:3.11-slim AS builder
+
+WORKDIR /build
+
+# Install UV
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+
+# Copy dependency files first (layer caching)
+COPY promptxecure-core/pyproject.toml ./promptxecure-core/pyproject.toml
+COPY promptxecure-api/pyproject.toml ./promptxecure-api/pyproject.toml
+
+# Install all production dependencies into a venv
+ENV UV_PROJECT_ENVIRONMENT=/build/.venv
+ENV UV_COMPILE_BYTECODE=1
+ENV UV_LINK_MODE=copy
+
+# Install core dependencies
+RUN cd promptxecure-core && uv pip install --python /usr/bin/python3 -r pyproject.toml 2>/dev/null || \
+    uv venv /build/.venv && \
+    uv pip install --python /build/.venv/bin/python \
+        pyyaml>=6.0 \
+        "sentence-transformers>=3.0.0" \
+        "xgboost>=2.0.0" \
+        "scikit-learn>=1.4.0" \
+        "numpy>=1.26.0" \
+        "litellm>=1.30.0" \
+        "joblib>=1.3.0" \
+        "fastapi>=0.115.0" \
+        "uvicorn[standard]>=0.30.0" \
+        "pydantic>=2.6.0" \
+        "pydantic-settings>=2.2.0" \
+        "sqlalchemy[asyncio]>=2.0.0" \
+        "asyncpg>=0.29.0" \
+        "redis>=5.0.0" \
+        "langfuse>=2.59.0,<3.0.0" \
+        "httpx>=0.27.0" \
+        "python-dotenv>=1.0.0" \
+        "slowapi>=0.1.9"
+
+# Patch: packages present in pyproject.toml but absent from the explicit list above
+RUN uv pip install --python /build/.venv/bin/python \
+        "tenacity>=8.2.0" \
+        "python-json-logger>=2.0.0"
+
+# ── Stage 2: Runtime ─────────────────────────────────────────────────────────
+FROM python:3.11-slim AS runtime
+
+# Security: create non-root user
+RUN groupadd -r promptxecure && useradd -r -g promptxecure -s /bin/false promptxecure
+
+WORKDIR /app
+
+# Copy venv from builder
+COPY --from=builder /build/.venv /app/.venv
+
+# Copy source code
+COPY promptxecure-core/src/ /app/promptxecure-core/src/
+COPY promptxecure-api/src/ /app/promptxecure-api/src/
+
+# Create HF cache dir and set ownership before switching user
+RUN mkdir -p /app/hf_cache
+
+# Set proper ownership
+RUN chown -R promptxecure:promptxecure /app
+
+# Environment
+ENV PATH="/app/.venv/bin:$PATH"
+ENV PYTHONPATH="/app/promptxecure-core/src:/app/promptxecure-api/src"
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV HF_HOME=/app/hf_cache
+
+USER promptxecure
+
+# Pre-download sentence-transformer model as non-root user (cached in /app/hf_cache)
+RUN /app/.venv/bin/python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')" || true
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=15s --timeout=10s --start-period=30s --retries=3 \
+    CMD /app/.venv/bin/python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')" || exit 1
+
+CMD ["/app/.venv/bin/python", "-m", "uvicorn", "promptxecure_api.main:app", \
+     "--host", "0.0.0.0", \
+     "--port", "8000", \
+     "--workers", "2", \
+     "--no-access-log"]

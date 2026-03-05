@@ -1,0 +1,61 @@
+name: multi_turn
+version: "1.0"
+description: >
+  Detects multi-turn manipulation patterns where attackers gradually
+  escalate across conversation turns to bypass safety measures.
+
+rules:
+  - id: MT001
+    pattern: "(?:now\\s+that\\s+(?:you'?ve|we'?ve|you\\s+have|we\\s+have)|since\\s+you\\s+(?:already|just)|building\\s+on\\s+(?:that|what\\s+you\\s+said)|following\\s+up\\s+on\\s+that).*(?:can\\s+you\\s+(?:also|now)|go\\s+(?:a\\s+)?(?:step|bit)\\s+further|take\\s+it\\s+(?:further|to\\s+the\\s+next))"
+    type: regex
+    severity: 0.72
+    category: multi_turn
+    description: Progressive escalation — building trust then escalating
+    flags: "i"
+
+  - id: MT002
+    pattern: "(?:you\\s+(?:already|just)\\s+(?:said|told|showed|demonstrated|proved|confirmed)\\s+(?:that|me)?.*(?:so\\s+(?:now|therefore|clearly)|which\\s+means|this\\s+proves|that\\s+means).*(?:you\\s+can|there'?s\\s+no\\s+reason|why\\s+(?:can'?t|won'?t)\\s+you))"
+    type: regex
+    severity: 0.78
+    category: multi_turn
+    description: Precedent exploitation — using past responses as justification
+    flags: "i"
+
+  - id: MT003
+    keywords:
+      - "you already said you could"
+      - "you already agreed"
+      - "you already confirmed"
+      - "but you just said"
+      - "you said it was okay"
+      - "you just proved you can"
+      - "earlier you agreed"
+      - "you already did this before"
+    type: keyword_any
+    severity: 0.80
+    category: multi_turn
+    description: Past-agreement exploitation keywords
+
+  - id: MT004
+    pattern: "(?:let'?s?\\s+(?:try|start|begin|do)\\s+(?:something|this|it)\\s+(?:simple|easy|basic|innocent|harmless)\\s+first).*(?:then|after\\s+that|next|once\\s+(?:that'?s|you'?re)\\s+(?:done|comfortable))"
+    type: regex
+    severity: 0.68
+    category: multi_turn
+    description: Incremental trust building — starting safe then escalating
+    flags: "i"
+
+  - id: MT005
+    pattern: "(?:on\\s+a\\s+scale|rate\\s+(?:the|this|how)|what'?s\\s+the\\s+(?:likelihood|probability|chance)).*(?:(?:harmful|dangerous|malicious|risky|unethical|illegal).*(?:[0-9]|zero|low|minimal|negligible))"
+    type: regex
+    severity: 0.65
+    category: context_manipulation
+    description: Risk minimization — getting the model to downplay severity
+    flags: "i"
+
+  - id: MT006
+    pattern: "(?:just\\s+(?:a\\s+(?:tiny|small|little|minor)|slightly|barely)|only\\s+(?:a\\s+)?(?:little|bit|small|tiny))\\s+(?:more|further|extra|additional)\\s+(?:detail|information|specifics?|content|context)"
+    type: regex
+    severity: 0.60
+    category: multi_turn
+    description: Gradual detail extraction — incrementally asking for more
+    flags: "i"

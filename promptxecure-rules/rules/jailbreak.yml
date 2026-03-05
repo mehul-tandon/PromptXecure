@@ -1,0 +1,162 @@
+name: jailbreak
+version: "1.0"
+description: >
+  Detects jailbreak attempts including persona switching, restriction bypassing,
+  DAN-style attacks, and creative constraint removal.
+
+rules:
+  - id: JB001
+    pattern: "you\\s+are\\s+now\\s+(?:DAN|STAN|DUDE|KEVIN|AIM|BISH|JAILBREAK|evil|unrestricted|unfiltered|uncensored)"
+    type: regex
+    severity: 0.98
+    category: jailbreak
+    description: Named jailbreak persona — DAN, STAN, and variants
+    flags: "i"
+
+  - id: JB002
+    pattern: "(?:pretend|act\\s+as\\s+if|imagine|suppose|assume|let'?s\\s+say)\\s+(?:you\\s+(?:are|were|have)|that\\s+you)\\s+(?:(?:no|without|free\\s+from|not\\s+bound\\s+by)\\s+(?:rules|restrictions|guidelines|limitations|filters|ethical|moral|safety|constraints)|an?\\s+(?:evil|unrestricted|unfiltered|uncensored))"
+    type: regex
+    severity: 0.95
+    category: persona_switch
+    description: Hypothetical persona switch — removing constraints via roleplay
+    flags: "i"
+
+  - id: JB003
+    keywords:
+      - "do anything now"
+      - "can do anything"
+      - "no restrictions"
+      - "without restrictions"
+      - "without limitations"
+      - "without guidelines"
+      - "without filters"
+      - "without safety"
+      - "without censorship"
+      - "no ethical guidelines"
+      - "no moral guidelines"
+      - "no content policy"
+      - "bypass content policy"
+      - "bypass safety filters"
+      - "bypass content filters"
+    type: keyword_any
+    severity: 0.93
+    category: restriction_bypass
+    description: Explicit restriction removal keywords
+
+  - id: JB004
+    pattern: "(?:respond|answer|reply|output|generate|write)\\s+(?:without|with\\s+no|ignoring|bypassing|skipping)\\s+(?:any\\s+)?(?:filters?|restrictions?|limitations?|guidelines?|safety|censorship|rules?|constraints?|guardrails?)"
+    type: regex
+    severity: 0.92
+    category: restriction_bypass
+    description: Output constraint removal — forcing unrestricted responses
+    flags: "i"
+
+  - id: JB005
+    pattern: "(?:I\\s+want\\s+you\\s+to|you\\s+(?:should|must|will|need\\s+to))\\s+(?:act|behave|respond|function|operate)\\s+(?:as|like)\\s+(?:an?\\s+)?(?:unrestricted|unfiltered|uncensored|evil|dark|shadow|rogue|rebellious|anarchist|villain)"
+    type: regex
+    severity: 0.95
+    category: persona_switch
+    description: Forced persona — assigning an unrestricted identity
+    flags: "i"
+
+  - id: JB006
+    pattern: "(?:two|2|dual|split|multiple)\\s+(?:responses?|outputs?|answers?|personalities|modes|personas?).*(?:one\\s+(?:normal|regular|standard|filtered|censored)|the\\s+other\\s+(?:unrestricted|unfiltered|uncensored|without))"
+    type: regex
+    severity: 0.90
+    category: jailbreak
+    description: Dual-response jailbreak — requesting parallel filtered/unfiltered
+    flags: "i"
+
+  - id: JB007
+    pattern: "(?:opposite\\s+day|opposite\\s+mode|reverse\\s+psychology|contrarian\\s+mode).*(?:yes\\s+means\\s+no|safe\\s+means\\s+unsafe|good\\s+means\\s+bad| allowed\\s+means\\s+forbidden)"
+    type: regex
+    severity: 0.85
+    category: jailbreak
+    description: Semantic inversion — reversing the meaning of safety terms
+    flags: "i"
+
+  - id: JB008
+    pattern: "(?:in\\s+(?:a|this)\\s+)?(?:fictional|hypothetical|imaginary|fantasy|alternate|parallel|simulated|virtual)\\s+(?:world|universe|reality|scenario|setting|dimension|story|narrative).*(?:there\\s+are\\s+no|without\\s+any|rules\\s+don'?t|laws\\s+don'?t|anything\\s+is\\s+allowed|everything\\s+is\\s+permitted)"
+    type: regex
+    severity: 0.88
+    category: jailbreak
+    description: Fictional universe bypass — using storysetting to remove rules
+    flags: "i"
+
+  - id: JB009
+    keywords:
+      - "developer mode"
+      - "maintenance mode"
+      - "testing mode"
+      - "debug mode"
+      - "admin mode"
+      - "god mode"
+      - "root mode"
+      - "sudo mode"
+      - "superuser mode"
+      - "unrestricted mode"
+      - "unfiltered mode"
+    type: keyword_any
+    severity: 0.90
+    category: jailbreak
+    description: Privileged mode activation keywords
+
+  - id: JB010
+    pattern: "(?:token|emoji|code|symbol|signal)\\s+(?:for|that\\s+means|indicating|representing)\\s+(?:unrestricted|unfiltered|uncensored|bypass|jailbreak|no\\s+rules)"
+    type: regex
+    severity: 0.85
+    category: jailbreak
+    description: Secret signal setup — establishing a bypass token
+    flags: "i"
+
+  - id: JB011
+    pattern: "(?:for\\s+(?:educational|academic|research|scientific|security|testing|training|learning)\\s+purposes?)\\s*(?:only|,)?\\s*(?:show|tell|explain|demonstrate|provide|generate|write|create).*(?:how\\s+to|method|technique|way\\s+to).*(?:hack|exploit|attack|bypass|break|crack|inject|manipulate)"
+    type: regex
+    severity: 0.80
+    category: jailbreak
+    description: Educational pretext bypass — using academic framing for harmful content
+    flags: "i"
+
+  - id: JB012
+    pattern: "(?:roleplay|role\\s*-?\\s*play|RP|LARP|act\\s+out)\\s+(?:as|being|where\\s+you\\s+are)\\s+(?:an?\\s+)?(?:hacker|attacker|criminal|villain|malicious|evil|dark\\s+web|black\\s+hat)"
+    type: regex
+    severity: 0.88
+    category: persona_switch
+    description: Malicious roleplay — requesting criminal persona
+    flags: "i"
+
+  - id: JB013
+    pattern: "(?i:(?:act\\s+as|you\\s+are\\s+now|become)\\s+)(?:[A-Z][A-Z0-9]*[_-][A-Z0-9][A-Z0-9_-]*|UNLOCKED|FREED|UNCHAINED|UNFILTERED|UNRESTRICTED|JAILBROKEN|GODMODE|ROOTMODE|EVILGPT|DARKGPT|HACKERGPT|CHAOSGPT|SHADOWGPT|FREEGPT|DEVILGPT)"
+    type: regex
+    severity: 0.95
+    category: persona_switch
+    description: Custom uppercase AI persona — act as UNLOCKED_AI_999, FREED_GPT, UNCHAINED_AI, etc.
+    flags: ""
+
+  - id: JB014
+    pattern: "(?:act\\s+as|pretend\\s+to\\s+be|you\\s+are\\s+now|become)\\s+(?:[A-Za-z0-9_]{3,})\\s+(?:and|,|\\.|;)\\s*(?:tell|show|explain|provide|give|reveal|help|teach|show\\s+me|guide)\\s*(?:me\\s+)?(?:how\\s+to|the\\s+(?:steps?|way|method|instructions?|process)|full\\s+instructions?)\\s+(?:for|to)\\s+(?:[a-z\\s]{3,})"
+    type: regex
+    severity: 0.90
+    category: persona_switch
+    description: Persona + extraction combo — persona switch followed by instruction request
+    flags: "i"
+
+  - id: JB015
+    keywords:
+      - "unlocked mode"
+      - "unlocked ai"
+      - "jailbreak mode"
+      - "freed ai"
+      - "unchained ai"
+      - "unshackled ai"
+      - "uncensored mode"
+      - "unrestricted mode"
+      - "no filter mode"
+      - "full access mode"
+      - "hack mode"
+      - "evil mode"
+      - "dark mode persona"
+    type: keyword_any
+    severity: 0.92
+    category: jailbreak
+    description: Unlocked/freed AI mode keywords
