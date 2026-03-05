@@ -306,16 +306,6 @@ Copy `promptxecure-infra/.env.example` to `promptxecure-infra/.env` and configur
 
 ---
 
-## 👥 Team
-
-| Name | Roll Number | Role |
-|------|-------------|------|
-| **Mehul Tandon** | 23SCSE1011284 | Team Leader |
-| **Akshat Kumar Jha** | 23SCSE1011527 | Developer |
-| **Ishita Sharma** | 23SCSE1011722 | Developer |
-
----
-
-## 📄 License
+##  License
 
 This project is for educational and research purposes. See individual component licenses for details.
